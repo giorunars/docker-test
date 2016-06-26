@@ -1,18 +1,26 @@
-FROM scratch
+FROM ubuntu:12.04
 
-ADD ./rootfs.tar /
-ADD ./opkg.conf         /etc/opkg.conf
-ADD ./opkg-install      /usr/bin/opkg-install
-ADD ./functions.sh      /lib/functions.sh
-RUN opkg-cl install https://downloads.openwrt.org/snapshots/trunk/x86/64/packages/base/libgcc_4.8-linaro-1_x86_64.ipk
-RUN opkg-cl install https://downloads.openwrt.org/snapshots/trunk/x86/64/packages/base/libc_0.9.33.2-1_x86_64.ipk
-RUN opkg-install nginx
-RUN mkdir /var/lib/nginx
-ADD nginx.conf /etc/nginx/nginx.conf
+MAINTAINER Wei-Ming Wu <wnameless@gmail.com>
 
-ADD start.sh /start.sh
-ADD index.html /index.html
+RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
+RUN apt-get update
 
-VOLUME ["/website_files"]
+# Install sshd
+RUN apt-get install -y openssh-server
+RUN mkdir /var/run/sshd
+
+# Set password to 'admin'
+RUN printf admin\\nadmin\\n | passwd
+
+# Install Apache
+RUN apt-get install -y apache2
+# Install php
+RUN apt-get install -y php5 libapache2-mod-php5 php5-mcrypt
+
+VOLUME ["/docker-test"]
+
 EXPOSE 80
-CMD ["sh", "/start.sh"]
+EXPOSE 5432
+
+CMD service apache2 start; \
+	/usr/sbin/sshd -D
