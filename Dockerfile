@@ -1,26 +1,20 @@
-FROM ubuntu:latest
+# 1.ベースイメージの取得
+FROM centos:latest
 
-#MAINTAINER Wei-Ming Wu <wnameless@gmail.com>
+# 2.作成者情報
+MAINTAINER 0.1 giorunars.hm@gmail.com
 
-RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
-RUN apt-get update
+# 3.Apache HTTP ServerとPHPのインストール
+RUN ["yum", "-y", "install", "epel-release"]
+RUN ["rpm", "-ivh", "http://rpms.famillecollet.com/enterprise/remi-release-7.rpm"]
+RUN ["yum", "-y", "install", "httpd"]
+RUN ["yum", "-y", "install", "--enablerepo=remi-php56", "php", "php-mbstring", "php-pear"]
 
-# Install sshd
-RUN apt-get install -y openssh-server
-RUN mkdir /var/run/sshd
+# 4.Webコンテンツの配置
+VOLUME ["/var/www/html"]
 
-# Set password to 'admin'
-RUN printf admin\\nadmin\\n | passwd
-
-# Install Apache
-RUN apt-get install -y apache2
-# Install php
-RUN apt-get install -y php5 libapache2-mod-php5 php5-mcrypt
-
-VOLUME ["/docker-test"]
-
+# 5.ポートの解放
 EXPOSE 80
-EXPOSE 5432
 
-CMD service apache2 start; \
-	/usr/sbin/sshd -D
+# 6.httpdの実行
+CMD ["/usr/sbin/httpd","-D", "FOREGROUND"]
