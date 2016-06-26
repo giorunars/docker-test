@@ -1,6 +1,6 @@
-FROM ubuntu:12.04
+FROM ubuntu:latest
 
-MAINTAINER Wei-Ming Wu <wnameless@gmail.com>
+#MAINTAINER Wei-Ming Wu <wnameless@gmail.com>
 
 RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
 RUN apt-get update
